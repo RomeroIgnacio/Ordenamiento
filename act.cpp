@@ -149,7 +149,7 @@ class Cola
                 for (int i = 0; i < ult; i++)
                 {
                     for (int j = 0; j < ult - i; j++) {
-                        if (alumnos[j].obtenerPromedio() > alumnos[j + 1].obtenerPromedio())
+                        if (alumnos[j].obtenerPromedio() < alumnos[j + 1].obtenerPromedio())
                         {
                             Alumno temp = alumnos[j];
                             alumnos[j] = alumnos[j + 1];
