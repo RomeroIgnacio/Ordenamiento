@@ -4,6 +4,17 @@ using namespace std;
 
 const int TAM = 5;
 
+enum
+{
+    AGREGAR = 1,
+    BUSCAR,
+    ELIMINAR,
+    INSERTAR,
+    MOSTRAR,
+    ORDENAR,
+    SALIR,
+};
+
 class Alumno
 {
     public:
@@ -80,112 +91,177 @@ class Alumno
         float promedio;
 };
 
-class Cola
+class Lista
 {
     public:
-        Cola() : ult(-1), alumnos{} {}
+        Lista() : ult(-1), alumnos{} {}
 
         bool vacia() const
         {
             return ult == -1;
         }
 
-        void encolar(const Alumno& alumno)
+        bool llena() const
         {
-            if (ult == TAM - 1)
-            {
-                cout << endl << "Cola llena. No se puede agregar el alumno." << endl;
-                return;
+            return ult == TAM - 1;
+        }
+
+        void agregarAlumno(const Alumno& alumno)
+        {
+            if (llena()) {
+                cout << endl << "Error: la lista de alumnos está llena." << endl;
             }
             else
             {
                 ult++;
                 alumnos[ult] = alumno;
-                cout << endl << "Alumno agregado correctamente" << endl;
+                cout << endl << "Alumno agregado correctamente." << endl;
             }
         }
 
-        void desencolar()
+        void mostrarAlumnos() const
         {
             if (vacia())
             {
-                cout << endl << "No hay constancias por hacer..." << endl;
+                cout << endl << "No hay alumnos para mostrar." << endl;
             }
             else
             {
-                cout << endl << "Alumno que recibe constancia: " << endl;
-                alumnos[0].mostrar();
-
-                for (int i = 1; i <= ult; i++)
-                {
-                    alumnos[i - 1] = alumnos[i];
-                }
-
-                ult--;
-                cout << endl << "Constancia entregada correctamente" << endl;
-            }
-        }
-
-		int buscar(string nombre)
-		{
-            for (int i = 0; i <= ult; i++)
-            {
-                if (alumnos[i].obtenerNombre() == nombre)
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        void quicksort(int ult)
-        {
-            if (vacia())
-            {
-                cout << endl << "No hay Alumnos en la cola" << endl;
-            }
-            else
-            {
-                for (int i = 0; i < ult; i++)
-                {
-                    for (int j = 0; j < ult - i; j++) {
-                        if (alumnos[j].obtenerPromedio() < alumnos[j + 1].obtenerPromedio())
-                        {
-                            Alumno temp = alumnos[j];
-                            alumnos[j] = alumnos[j + 1];
-                            alumnos[j + 1] = temp;
-                        }
-                    }
-                }
-
-                for (int i = 0; i <= ult; i++)
+                cout << endl << "Lista de Alumnos:" << endl;
+                for (int i = 0; i <= ult; ++i)
                 {
                     alumnos[i].mostrar();
                 }
             }
         }
 
-        int obtenerUltimo()
+        void buscarAlumnos(string nombre) const
         {
-            return ult;
+            bool encontrado = false;
+            for (int i = 0; i <= ult; ++i)
+            {
+                if (alumnos[i].obtenerNombre() == nombre)
+                {
+                    cout << endl << "Alumno encontrado:" << endl;
+                    cout << alumnos[i];
+
+                    encontrado = true;
+                    break;
+                }
+            }
+            if (!encontrado)
+            {
+                cout << endl << "Alumno no encontrado." << endl;
+            }
         }
 
-	private:
+        void eliminarAlumno(string nombre)
+        {
+            bool encontrado = false;
+            for (int i = 0; i <= ult; ++i)
+            {
+                if (alumnos[i].obtenerNombre() == nombre)
+                {
+                    for (int j = i; j < ult; ++j)
+                    {
+                        alumnos[j] = alumnos[j + 1];
+                    }
+                    ult--;
+                    encontrado = true;
+                    cout << endl << "Alumno eliminado correctamente." << endl;
+                    break;
+                }
+            }
+            if (!encontrado)
+            {
+                cout << endl << "Alumno no encontrado." << endl;
+            }
+        }
+
+        void insertarAlumno(const Alumno& alumno, int pos)
+        {
+            if (llena())
+            {
+                cout << endl << "Error: la lista de Alumnos está llena." << endl;
+            }
+            else if (pos < 0 || pos > ult + 1)
+            {
+                cout << endl << "No se puede insertar en la posición especificada." << endl;
+            }
+            else
+            {
+                if (pos == ult + 1)
+                {
+                    alumnos[pos] = alumno;
+                    ult++;
+                    cout << endl << "Alumno insertado correctamente." << endl;
+                }
+                else
+                {
+                    for (int i = ult + 1; i > pos; --i)
+                    {
+                        alumnos[i] = alumnos[i - 1];
+                    }
+                    alumnos[pos] = alumno;
+                    ult++;
+                    cout << endl << "Empleado insertado correctamente." << endl;
+                }
+            }
+        }
+
+        void quicksort(int primero, int ultimo)
+        {
+            if (primero < ultimo)
+            {
+                int izquierda = primero;
+                int derecha = ultimo;
+                Alumno pivote = alumnos[(izquierda + derecha) / 2];
+
+                do
+                {
+                    while (alumnos[izquierda].obtenerPromedio() > pivote.obtenerPromedio()) // Cambio aquí
+                        izquierda++;
+                    while (alumnos[derecha].obtenerPromedio() < pivote.obtenerPromedio()) // Cambio aquí
+                        derecha--;
+
+                    if (izquierda <= derecha)
+                    {
+                        Alumno temp = alumnos[izquierda];
+                        alumnos[izquierda] = alumnos[derecha];
+                        alumnos[derecha] = temp;
+                        izquierda++;
+                        derecha--;
+                    }
+                } while (izquierda <= derecha);
+
+                quicksort(primero, derecha);
+                quicksort(izquierda, ultimo);
+            }
+        }
+
+        void ordenarAlumnos()
+        {
+            quicksort(0, ult);
+        }
+
+
+    private:
 		Alumno alumnos[TAM];
 		int ult;
 };
 
 int menu(int op)
 {
-	cout << endl <<
-    "Menu" << endl << 
-    " 1) Dar de alta solicitud de Alumno" << endl << 
-    " 2) Elaborar constancia" << endl << 
-	" 3) Ordenar alumnos de menor a mayor calificación" << endl << 
-    " 4) Buscar solicitud" << endl << 
-    " 5) Salir" << endl << 
+	cout << endl << "Menu:" << endl << " " << 
+    AGREGAR << ") Agregar Alumno" << endl << " " << 
+    BUSCAR << ") Buscar Alumno" << endl << " " << 
+    ELIMINAR << ") Eliminar Alumno" << endl << " " << 
+    INSERTAR << ") Insertar Alumno" << endl << " " << 
+    MOSTRAR << ") Mostrar Alumno" << endl << " " << 
+    ORDENAR << ") Ordenar Alumnos" << endl << " " <<
+    SALIR << ") Salir" << endl << 
     "Ingresa una opción: ";
-	cin >> op;
+    cin >> op;
 
 	return op;
 }
@@ -193,52 +269,63 @@ int menu(int op)
 int main()
 {
 	int op;
-    Cola cola;
+    Lista lista;
 
 	do
 	{
 		switch(menu(op))
 		{
-			case 1:
+			case AGREGAR:
             {
                 Alumno alumno;
                 cin >> alumno;
-				cola.encolar(alumno);
+				lista.agregarAlumno(alumno);
                 break;
             }
 
-			case 2:
+			case BUSCAR:
 			{
-                cola.desencolar();
+                string nombre;
+                cout << endl << "Ingrese el nombre del Alumno a buscar: ";
+                cin >> nombre;
+                lista.buscarAlumnos(nombre);
                 break;
 			}
 
-            case 3:
-            {
-                cola.quicksort(cola.obtenerUltimo());
-                break;
-            }
-
-            case 4:
+            case ELIMINAR:
             {
                 string nombre;
-                cout << endl << "Ingrese el nombre del alumno a buscar: ";
+                cout << endl << "Ingrese la clave del empleado a eliminar: ";
                 cin >> nombre;
-                int posicion = cola.buscar(nombre);
-                
-                if (posicion != -1)
-                {
-                    int constanciasAntes = posicion;
-                    cout << endl << "Número de constancias a elaborar antes de la solicitud del alumno: " << constanciasAntes << endl;
-                }
-                else
-                {
-                    cout << endl << "No se encontró ninguna solicitud con ese nombre." << endl << "Debe dar de alta una solicitud." << endl;
-                }
+                lista.eliminarAlumno(nombre);
                 break;
             }
 
-			case 5:
+            case INSERTAR:
+            {
+                int pos;
+                cout << endl << "Ingrese la posición donde desea insertar el empleado: ";
+                cin >> pos;
+                Alumno alumno;
+                cin >> alumno;
+                lista.insertarAlumno(alumno, pos);
+                break;
+            }
+
+            case MOSTRAR:
+                lista.mostrarAlumnos();
+                break;
+
+            case ORDENAR:
+            {
+                Alumno alumno;
+                lista.ordenarAlumnos();
+                cout << endl << "Alumnos ordenados de mayor calificación a menor" << endl;
+                lista.mostrarAlumnos();
+                break;
+            }
+
+			case SALIR:
             {
 				cout << endl << "Saliendo del programa..." << endl;
 				return 0;
